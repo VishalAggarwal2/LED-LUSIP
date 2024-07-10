@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isGreenOn = false;
   bool _allLightsOn = false;
   Color _backgroundColor = Colors.white;
+  double _intensity = 1.0;
 
   void _incrementCounter() {
     setState(() {
@@ -115,6 +116,30 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _wavePattern() async {
+    final response = await http.get(Uri.parse('http://192.168.4.1/move?pattern=wave'));
+
+    if (response.statusCode == 200) {
+      print('Wave pattern request sent successfully');
+    } else {
+      print('Failed to send wave pattern request');
+    }
+  }
+
+  Future<void> _setIntensity(double intensity) async {
+    setState(() {
+      _intensity = intensity;
+    });
+
+    final response = await http.get(Uri.parse('http://192.168.4.1/move?intensity=$intensity'));
+
+    if (response.statusCode == 200) {
+      print('Intensity set successfully');
+    } else {
+      print('Failed to set intensity');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,6 +186,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 ElevatedButton(
                   onPressed: _blinkLights,
                   child: const Text('Blink Lights'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _wavePattern,
+                  child: const Text('Wave Pattern'),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Intensity:',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                    Slider(
+                      value: _intensity,
+                      min: 0.0,
+                      max: 1.0,
+                      divisions: 10,
+                      label: _intensity.toString(),
+                      onChanged: (value) => _setIntensity(value),
+                    ),
+                  ],
                 ),
               ],
             ),
